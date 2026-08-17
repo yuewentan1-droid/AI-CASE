@@ -1,3 +1,11 @@
+# ============================================================
+# 说明：本文件用于「过滤一切本地涉密/运行产物，禁止提交」。
+# - 敏感文件：data/apikeys.json（真实 API Key）、.env、*.key/*.pem、
+#   本地 qywdskey.txt、.claude/（settings.local.json 内含真实 Key）。
+# - 运行时数据：data/（上传文件+apikeys）、temp/（临时产物）。
+# - 依赖与构建：node_modules、dist、.venv、__pycache__。
+# 提交前请用 `git status` 核对无密钥/数据文件被误入。
+# ============================================================
 # ---- Python ----
 .venv/
 __pycache__/
