@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI测试用例生成平台</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/toolbar.css">
+</head>
+<body>
+  <!-- 统一外壳：顶部 / 左侧 / 中间 / 右侧 / 底部 一体 -->
+  <div class="app-shell">
+  <div id="toast"></div>
+
+  <div class="app-layout">
+    <!-- 左侧：图标工具栏（默认仅图标，hover 展开文字） -->
+    <nav id="toolbar" class="app-toolbar" aria-label="工具栏">
+      <button type="button" class="tbtn" data-module="settings" title="配置模型">
+        <svg class="ticon" viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5a7 7 0 0 0 0 2.4l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2L10 21h4l.6-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.06-.4.1-.8.1-1.2z"/></svg>
+        <span class="tlabel">配置模型</span>
+      </button>
+      <button type="button" class="tbtn" data-module="upload" title="上传文件">
+        <svg class="ticon" viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+        <span class="tlabel">上传文件</span>
+      </button>
+      <button type="button" class="tbtn" data-module="analysis" title="需求评审">
+        <svg class="ticon" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6"/></svg>
+        <span class="tlabel">需求评审</span>
+      </button>
+      <button type="button" class="tbtn" data-module="generate" title="用例生成">
+        <svg class="ticon" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M8 21h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
+        <span class="tlabel">用例生成</span>
+      </button>
+      <button type="button" class="tbtn" data-module="export" title="导出">
+        <svg class="ticon" viewBox="0 0 24 24"><path d="M12 3v10m0 0l-4-4m4 4l4-4M5 16v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/></svg>
+        <span class="tlabel">导出</span>
+      </button>
+      <div class="tsep"></div>
+      <button type="button" class="tbtn" data-action="theme" title="切换主题">
+        <svg class="ticon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18 7 7 0 0 1 0-14 7 7 0 0 1 0-4z"/></svg>
+        <span class="tlabel">主题</span>
+      </button>
+    </nav>
+
+    <!-- 中间：工具栏驱动的模块化视图 -->
+    <main id="center" class="app-center">
+      <!-- 全局顶部进度条（分析过程全程可见） -->
+      <div id="progress" class="progress hidden">
+        <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+        <div class="progress-info"><span id="progress-text">正在分析中...</span><span id="progress-pct">0%</span></div>
+      </div>
+
+      <!-- 模块：首页（默认，简洁品牌 + SVG 特效动画，无工具栏选中） -->
+      <section class="module card active" data-module="home" id="mod-home">
+        <div class="home-hero">
+          <div class="hero-icon">
+            <svg class="hero-core" viewBox="0 0 24 24" aria-hidden="true">
+              <circle class="hero-ring r1" cx="12" cy="12" r="10"/>
+              <circle class="hero-ring r2" cx="12" cy="12" r="6.5"/>
+              <path class="hero-glyph" d="M8 8l4 4-4 4M16 8l-4 4 4 4"/>
+            </svg>
+            <i class="hero-dot d1"></i><i class="hero-dot d2"></i><i class="hero-dot d3"></i><i class="hero-dot d4"></i>
+          </div>
+          <h2 class="hero-title">测试用例生成平台</h2>
+          <p class="hero-sub">上传需求文件，AI 多模态智能生成测试用例</p>
+          <button type="button" class="btn hero-start" id="btn-start">开始生成用例 →</button>
+        </div>
+      </section>
+
+      <!-- 模块：上传（输入集散地：文件上传 + 补充分析输入面板 + 测试数据 + 文件管理） -->
+      <section class="module card" data-module="upload" id="mod-upload">
+        <div class="card-title">文件上传 <span class="hint">上传即持久化到本地，供后续 AI 综合分析</span></div>
+        <!-- 顶部已上传：仅显示本次上传，方便预览；刷新后清空（与持久化的文件管理不同） -->
+        <div id="filebar" class="filebar"></div>
+        <!-- 隐藏的真实文件输入，由「选择文件」卡片点击触发（可多选） -->
+        <input type="file" id="files" multiple hidden>
+        <!-- 上传区：选择文件正方形 + 补充分析 + 测试数据 并排，高度一致 -->
+        <div class="up-row">
+          <div class="uc-card action" id="uc-action" title="选择文件（可多选）：支持多格式上传">
+            <div class="uc-icon">＋</div>
+            <div class="uc-name">选择文件</div>
+            <div class="uc-sub">支持多格式，hover 查看</div>
+            <div class="uc-format-tip">
+              <b>支持上传格式</b>
+              <div>文本：txt / md</div>
+              <div>文档：docx / doc</div>
+              <div>表格：xlsx / xls</div>
+              <div>思维导图：mm / xmind</div>
+              <div>代码：py / java / js / go / c / cpp / ts / sql / cs / php / rb / sh</div>
+              <div>数据：json</div>
+              <div>图片：png / jpg / jpeg / gif / bmp / webp</div>
+            </div>
+          </div>
+          <div class="input-panel up-panel">
+            <textarea id="user_input" placeholder="补充分析：需求描述、补充说明等，与上传文件一起作为分析依据..."></textarea>
+            <div class="panel-actions hidden"><button id="save-user-input" type="button" class="btn sm ghost">保存</button></div>
+          </div>
+        </div>
+        <!-- 上传测试数据：与文件上传布局一致，左上传正方形 + 右输入框，位于文件上传下方 -->
+        <div class="up-row">
+          <div class="uc-card action" id="uc-td" title="上传测试数据文件：txt/md/word/excel/json/文本">
+            <div class="uc-icon">＋</div>
+            <div class="uc-name">上传测试数据</div>
+            <div class="uc-sub">支持多格式，hover 查看</div>
+            <div class="uc-format-tip">
+              <b>支持上传测试数据格式</b>
+              <div>文本：txt / md</div>
+              <div>文档：docx / doc</div>
+              <div>表格：xlsx / xls</div>
+              <div>数据：json</div>
+              <div>代码：py / java / js / sql / sh</div>
+            </div>
+          </div>
+          <div class="input-panel up-panel">
+            <textarea id="test_data" placeholder="测试数据：可粘贴 JSON / 文本，或点击左侧「上传测试数据」导入..."></textarea>
+            <div class="panel-actions hidden"><button id="save-testdata" type="button" class="btn sm ghost">保存</button></div>
+          </div>
+        </div>
+        <input type="file" id="testdata-file" multiple hidden>
+        <!-- 上传后提示本地持久化路径 -->
+        <div id="upload-path" class="upload-path hidden"></div>
+
+        <div class="card-title fl-title" id="fl-title" style="margin-top:20px" title="点击展开/收起">文件管理 <span class="fl-caret">▶</span> <span class="hint">点击标题展开/收起，分页展示</span> <span class="hint" id="fl-count"></span> <button type="button" class="btn sm ghost fl-open" id="fl-open-dir" title="在文件浏览器中查看本地上传目录">文件浏览器</button><input type="text" class="fl-search" id="fl-search" placeholder="搜索文件（文件名或后缀）" title="按文件名或后缀搜索文件管理"></div>
+        <div id="file-manager-list" class="collapsed"></div>
+      </section>
+
+      <!-- 模块：模型设置 -->
+      <section class="module card" data-module="settings" id="mod-settings">
+        <div class="card-title">AI 模型配置 <span class="hint">分析前自动测试各模型连通性，可用者随机选用；全部不可用则提示到此处填写正确 Key</span></div>
+        <div id="model-cards" class="model-grid"></div>
+        <!-- 供 formData/后端读取，点选卡片头部时同步其值 -->
+        <input id="api_key" type="hidden">
+        <select id="provider" class="hidden">
+          <option value="deepseek">DeepSeek</option>
+          <option value="doubao">豆包</option>
+          <option value="qianwen">千问</option>
+        </select>
+        <select id="model" class="hidden"></select>
+      </section>
+
+      <!-- 模块：需求分析 -->
+      <section class="module card" data-module="analysis" id="mod-analysis">
+        <!-- 开始需求分析：居中 div（与背景共用、铺满面板），无悬浮组件；按钮内带闪闪光效 -->
+        <div id="analyze-cta" class="analyze-cta">
+          <button id="analyze-btn" type="button" class="analyze-cta-btn">
+            <span class="acta-text">开始需求分析</span>
+            <span class="acta-sub">快开始评审吧，让 AI 帮你发现风险</span>
+          </button>
+        </div>
+
+        <!-- 分析中：分阶段状态 + 停止分析（点击开始后显示） -->
+        <div id="analyze-ctrl" class="analyze-ctrl hidden">
+          <div id="upload-status" class="loading">AI 分析中，请稍候...</div>
+          <button id="analyze-stop" type="button" class="btn ghost">停止分析</button>
+        </div>
+
+        <div id="analysis-result" class="result-box hidden"></div>
+
+        <!-- 需求评审内容导出条：固定在底部，分析完成后显示 -->
+        <div id="analysis-export" class="analysis-export hidden">
+          <span class="ae-label">导出评审内容</span>
+          <button type="button" class="btn ghost" data-ae="html">HTML</button>
+          <button type="button" class="btn ghost" data-ae="excel">Excel</button>
+          <button type="button" class="btn ghost" data-ae="word">Word</button>
+          <button type="button" class="btn ghost" data-ae="xmind">XMind(.mm)</button>
+        </div>
+
+        <!-- 重新分析区：AI 依据输入覆盖情况，底部展示「不建议重新分析」说明，或展示橙色重新分析按钮 -->
+        <div id="analyze-re-wrap" class="analyze-re-wrap">
+          <div id="analyze-re-note" class="an-re-note hidden"></div>
+          <button id="analyze-re" type="button" class="analyze-cta-btn re-btn hidden">
+            <span class="acta-text">重新分析</span>
+            <span class="acta-sub">有输入未覆盖，再次评审以纳入完整依据</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 模块：用例生成 -->
+      <section class="module card" data-module="generate" id="mod-generate">
+        <div class="input-panel">
+          <label class="not-bold">自定义用例模板（逗号分隔字段，留空用系统内置）</label>
+          <textarea id="template" placeholder="主模块,子模块1,子模块2,测试标题,测试步骤,测试结果"></textarea>
+        </div>
+        <div class="row" id="gen-btns">
+          <button id="generate-btn" type="button" class="btn ghost">AI生成用例</button>
+          <button id="review-btn" type="button" class="btn ghost">AI自动评审</button>
+        </div>
+        <!-- 评审决策：AI 依据输入覆盖情况，展示「无需重新评审」说明 -->
+        <div id="gen-re-note" class="an-re-note hidden"></div>
+        <div id="review-result" class="result-box hidden"></div>
+        <div id="case-list"></div>
+      </section>
+
+      <!-- 模块：导出 -->
+      <section class="module card" data-module="export" id="mod-export">
+        <div class="export-cta">
+          <div class="exp-item cases">
+            <button type="button" class="exp-btn cases" id="export-cases">
+              <span class="acta-text">用例</span>
+              <span class="acta-sub">导出 AI 生成的测试用例</span>
+            </button>
+            <div class="exp-drop cases hidden">
+              <div class="exp-drop-title">选择格式</div>
+              <div class="export-fmt-btns" data-exp-type="cases"></div>
+            </div>
+          </div>
+          <div class="exp-item manual">
+            <button type="button" class="exp-btn manual" id="export-manual">
+              <span class="acta-text">操作手册</span>
+              <span class="acta-sub">导出 AI 生成的操作手册</span>
+            </button>
+            <div class="exp-drop manual hidden">
+              <div class="exp-drop-title">选择格式</div>
+              <div class="export-fmt-btns" data-exp-type="manual"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 右侧：文件原内容预览 -->
+    <aside id="right" class="app-right">
+      <div class="panel">
+        <div class="panel-title">
+          <span id="right-title" class="pv-title">文件内容</span>
+          <div class="pv-actions">
+            <button type="button" class="pv-btn" id="preview-full" title="全屏阅读">⛶</button>
+            <button type="button" class="pv-btn pv-close" id="preview-close" title="关闭预览">×</button>
+          </div>
+        </div>
+        <div id="file-content" class="file-content">
+          <p class="file-empty">点击左侧文件查看解析内容</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 中间边缘标签：预览文件时中间自动收缩，此集成标签（灵动箭头）用于恢复中间展开 -->
+    <button type="button" id="center-tab" class="center-tab" aria-label="展开中间内容" title="展开中间内容"></button>
+  </div>
+
+  <!-- 全屏阅读遮罩 -->
+  <div id="fullscreen" class="fullscreen hidden">
+    <div class="fullscreen-head">
+      <span id="fullscreen-title">文件内容</span>
+      <button type="button" class="pv-btn" id="fullscreen-close" title="关闭">×</button>
+    </div>
+    <div id="fullscreen-content" class="fullscreen-content"></div>
+  </div>
+
+  <!-- 通用弹窗遮罩 -->
+  <div id="modal" class="modal hidden"></div>
+
+  <!-- 业务流程图放大灯箱 -->
+  <div id="flowchart-lightbox" class="fc-lightbox hidden">
+    <div class="fc-lb-head">
+      <span class="fc-lb-title">业务流程图</span>
+      <button type="button" class="fc-zoomin" title="放大">＋</button>
+      <button type="button" class="fc-zoomout" title="缩小">－</button>
+      <button type="button" class="fc-close" title="关闭">×</button>
+    </div>
+    <div class="fc-stage"><div class="fc-content"></div></div>
+  </div>
+  </div>
+
+  <input type="hidden" id="session_id">
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

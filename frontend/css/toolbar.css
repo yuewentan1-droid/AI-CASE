@@ -1,0 +1,317 @@
+/* 左侧工具栏：默认窄条仅图标，hover 时整条展开，文字在图标下方（不重叠） */
+.app-toolbar {
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 6px;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+}
+
+/* 图标按钮：图标在上，文字在下 */
+.tbtn {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s, color .15s, transform .18s ease;
+}
+.tbtn .ticon {
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* 文字：位于图标正下方，整条展开后随工具栏一起显示 */
+.tlabel {
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .15s ease;
+}
+.app-toolbar:hover .tlabel { opacity: 1; }
+.tbtn:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+.tbtn:active { transform: translateY(0); }
+.tbtn.active {
+  background: var(--primary);
+  color: #fff;
+}
+/* 里程碑未解锁：置灰、禁止点击、hover 无变化 */
+.tbtn.locked {
+  opacity: .4;
+  filter: grayscale(.5);
+  cursor: not-allowed;
+}
+.tbtn.locked:hover,
+.tbtn.locked:active {
+  background: transparent;
+  color: var(--muted);
+  transform: none;
+}
+.tbtn.locked.active { background: transparent; color: var(--muted); }
+
+/* 分隔线 */
+.tsep {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+  flex-shrink: 0;
+}
+
+/* 深色主题适配 */
+html[data-theme="dark"] .tbtn.active { color: #fff; }
+
+/* 文件条（主内容区顶部 chips） */
+.filebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.filebar .fbar-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-right: 2px;
+  white-space: nowrap;
+}
+.filebar:empty { display: none; }
+
+/* 文件 chip */
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+  max-width: 220px;
+  transition: background .15s, border-color .15s, box-shadow .15s, transform .18s ease;
+}
+.file-chip:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+.file-chip.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+.file-chip .chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.file-chip .chip-size { color: var(--muted); font-size: 11px; flex-shrink: 0; }
+
+/* 深色主题适配 */
+html[data-theme="dark"] .file-chip { background: #16171c; }
+
+/* 文件/上传卡片网格：正方形卡片，参考模型卡片布局 */
+.uc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.uc-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  aspect-ratio: 1 / 1;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.uc-card:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+.uc-card.active { border-color: var(--primary); box-shadow: var(--shadow); }
+.uc-card .uc-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.uc-card .uc-sub { font-size: 11px; color: var(--muted); }
+
+/* 上传动作卡：主色虚线 + 圆形＋号，友好引导 */
+.uc-card.action { border: 2px dashed var(--primary); background: var(--primary-light); }
+.uc-card.action:hover { border-color: var(--primary-dark); background: #fff; }
+.uc-card.action .uc-icon {
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; line-height: 1; color: var(--primary);
+  border-radius: 50%; background: #fff; box-shadow: var(--shadow);
+}
+/* 格式提示过长省略，hover（title）显示完整 */
+.uc-card.action .uc-sub {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+
+/* 上传卡片 hover：悬浮显示支持的格式列表（显示在卡片右侧，避免遮住上方「已上传」文件条字体） */
+.uc-format-tip {
+  display: none;
+  position: absolute;
+  left: calc(100% + 8px); top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  width: 220px;
+  padding: 10px 12px;
+  background: #fff; border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-size: 12px; color: var(--text); text-align: left; line-height: 1.7;
+}
+.uc-format-tip b { display: block; margin-bottom: 4px; color: var(--primary); }
+.uc-card.action:hover .uc-format-tip { display: block; }
+html[data-theme="dark"] .uc-format-tip { background: #1f2329; }
+
+/* 文件卡：顶部文件名 + 居中扩展名图标 */
+.uc-card.file { justify-content: flex-start; }
+.uc-card.file .uc-head {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 4px;
+}
+.uc-card.file .uc-head .uc-name {
+  flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.uc-card.file .uc-icon { margin: auto; }
+.uc-ext {
+  display: inline-block; font-style: normal; font-size: 12px; font-weight: 700;
+  color: var(--primary); background: var(--primary-light);
+  border: 1px solid var(--primary); border-radius: 6px; padding: 5px 9px;
+}
+
+/* 补充分析 / 测试数据：宽输入面板（无外框），内容多自动滚动；点击输入后显示保存按钮 */
+.input-panel { margin-top: 12px; }
+.up-row .input-panel { margin-top: 0; } /* 在并排行内不再额外上边距 */
+.input-panel textarea {
+  width: 100%; min-height: 96px; resize: vertical; overflow: auto;
+  padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 7px;
+  font-size: 13px; line-height: 1.6; background: #fff; color: var(--text);
+  font-family: inherit;
+}
+.input-panel textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.panel-actions { margin-top: 8px; display: flex; justify-content: flex-end; }
+
+/* 上传区：每行左上传正方形 + 右输入面板，并排且高度一致；文件上传与测试数据各一行 */
+.up-row { display: flex; gap: 12px; align-items: stretch; }
+.up-row + .up-row { margin-top: 16px; } /* 测试数据行与文件上传行分隔 */
+.up-row .uc-card.action { flex: 0 0 150px; aspect-ratio: 1 / 1; justify-content: center; align-self: center; }
+.up-panel {
+  flex: 1; display: flex; flex-direction: column;
+  gap: 6px; align-self: stretch; justify-content: flex-start;
+  position: relative; /* 让保存按钮可绝对定位到输入框内左下 */
+}
+.up-panel textarea { flex: 1; min-height: 96px; resize: none; padding-bottom: 40px; }
+/* 保存按钮内嵌输入框内左下，聚焦时显示 */
+.up-panel .panel-actions {
+  position: absolute; bottom: 8px; left: 10px;
+  margin-top: 0; z-index: 5;
+}
+.up-panel .panel-actions.hidden { display: none; }
+
+html[data-theme="dark"] .input-panel textarea { background: #16171c; }
+
+/* 上传后本地持久化路径提示：蓝色字体直显，无外边框 */
+.upload-path {
+  margin-top: 10px;
+  font-size: 12px; color: var(--primary);
+  word-break: break-all;
+}
+
+/* 文件管理：计数条 + 折叠网格 + 分页 */
+.fl-title { cursor: pointer; user-select: none; flex-wrap: wrap; }
+.fl-title .fl-caret {
+  font-size: 11px; color: var(--muted); margin-left: 2px;
+  transition: transform .15s ease;
+}
+.fl-title .fl-search {
+  width: 180px; margin-left: auto; margin-bottom: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; color: var(--text); font-size: 12px;
+}
+html[data-theme="dark"] .fl-title .fl-search { background: #16171c; }
+.fl-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); justify-content: flex-start; gap: 8px; } /* 一行 10 个、默认 2 行一页（20），靠左排开，超出分页 */
+.fl-grid.collapsed { display: none; }
+/* 文件卡在 10 列下缩小为紧凑正方形，靠左排开 */
+.fl-grid .uc-card.file { min-height: 0; aspect-ratio: 1 / 1; padding: 8px; gap: 6px; }
+.fl-actions { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.fl-check {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--muted); cursor: pointer;
+}
+.fl-check input { width: 14px; height: 14px; accent-color: var(--primary); cursor: pointer; }
+.fl-x {
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--danger); color: var(--danger);
+  background: #fff; border-radius: 6px;
+  font-size: 14px; line-height: 1; cursor: pointer;
+}
+.fl-x:hover { background: var(--danger); color: #fff; }
+html[data-theme="dark"] .fl-x { background: #16171c; }
+.fl-pager {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-top: 10px; font-size: 12px; color: var(--muted);
+  /* 分页按钮固定底部，不加整条 bar（去掉背景/边框/阴影），仅按钮可见 */
+  position: sticky; bottom: 0; z-index: 20;
+  padding: 6px 0;
+}
+.fl-empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 24px 0; font-size: 13px; }
+
+.uc-count { grid-column: 1 / -1; font-size: 12px; color: var(--muted); text-align: right; }
+
+/* 深色主题适配 */
+html[data-theme="dark"] .uc-card { background: #16171c; }
+html[data-theme="dark"] .uc-card.action { background: #1a1d24; }
+
+/* 自定义用例模板：多行文本框（样式同需求面板），上方标签留间距 */
+.input-panel .not-bold { display: block; margin-bottom: 6px; font-weight: 400; color: var(--text); }

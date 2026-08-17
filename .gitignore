@@ -1,0 +1,45 @@
+# ---- Python ----
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# ---- IDE / 本地工具 ----
+.idea/
+.vscode/
+.claude/
+
+# ---- 运行时数据（含真实上传文件与 apikeys.json 密钥，禁止提交）----
+data/
+temp/
+
+# ---- 本地开发密钥文件 / 一切 key 缓存 ----
+qywdskey.txt
+*qywdskey*
+*.key
+*.pem
+*.p12
+.env
+.env.*
+!.env.example
+apikeys.json
+*apikeys*
+*secret*
+*credential*
+
+# ---- 前端构建产物与依赖 ----
+frontend/node_modules/
+frontend/dist/
+
+# ---- 日志 ----
+*.log
+
+# ---- 前端本地测试残留 ----
+frontend/tmp_*
+frontend/smoke.*
+
+# ---- 操作系统 ----
+.DS_Store
+Thumbs.db

@@ -1,0 +1,6 @@
+{
+  "name": "template_skill",
+  "type": "template",
+  "description": "系统内置模板Skill，定义测试用例的标准字段结构",
+  "fields": ["主模块", "子模块1", "子模块2", "测试标题", "测试步骤", "测试结果"]
+}
